@@ -79,22 +79,15 @@ public class CanonRotation : MonoBehaviour, InputActions.IShootActions
     public void Shoot()
     {
         GameObject bullet = Instantiate(Bullet, ShootPoint.transform.position, ShootPoint.transform.rotation);
-        Vector2 direction = CalculateBulletDirection();
+        Vector2 direction = CalculateBulletDirectionWithLimits();
         bullet.GetComponent<Rigidbody2D>().linearVelocity = direction * ProjectileSpeed;
     }
-    public Vector2 CalculateBulletDirection()
+    public Vector2 CalculateBulletDirectionWithLimits()
     {
         Vector2 direction = _distanceBetweenMouseAndPlayer.normalized;
-        if (Vector3.Angle(Vector2.right, direction) > _maxRotation.z)
-        {
-            float angleInRad = _maxRotation.z * Mathf.Deg2Rad;
-            direction = new Vector2(Mathf.Cos(angleInRad), Mathf.Sin(angleInRad));
-        }
-        else if (Vector3.Angle(Vector2.right, direction) < _minRotation.z)
-        {
-            float angleInRad = _minRotation.z * Mathf.Deg2Rad;
-            direction = new Vector2(Mathf.Cos(angleInRad), Mathf.Sin(angleInRad));
-        }
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        angle = Mathf.Clamp(angle, _minRotation.z - _offset, _maxRotation.z - _offset);
+        direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
         return direction;
     }
 }
